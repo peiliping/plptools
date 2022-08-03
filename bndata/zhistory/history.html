@@ -1,0 +1,258 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <script src="https://code.highcharts.com.cn/jquery/jquery-1.8.3.min.js"></script>
+        <script src="https://cdn.highcharts.com.cn/highstock/highstock.js"></script>
+        <script src="https://code.highcharts.com.cn/highcharts-plugins/highcharts-zh_CN.js"></script>
+        <script type="text/javascript" src="./kline.js"></script>
+        <script type="text/javascript" src="./positions.js"></script>
+        <script type="text/javascript" src="./opens.js"></script>
+        <style>
+            *{
+                margin: 0;
+                padding: 0;
+            }
+            div{
+                width:100%;
+                height: 100%;
+                position: absolute;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="container"></div>
+        <script>
+            var result = {
+                prices : prices,
+                positions : positions,
+                opens : opens,
+                yMarks : [],
+            };
+
+            function chart(){
+                var f = function(a, b){return a[0]-b[0];}
+                result.prices.sort(f);
+                result.positions.sort(f);
+                result.opens.sort(f);
+                var pmax =  0.1 + result.positions.reduce((ac , cur) => {return ac > cur[1] ? ac : cur[1];});
+                var pmin = -0.1 + result.positions.reduce((ac , cur) => {if(ac == null){ac=1;} return ac < cur[1] ? ac : cur[1];});
+                for (var i = -100; i < 100; i+=5){
+                    if(i >= pmin * 100 && i <= pmax * 100){
+                        result.yMarks.push(i/100);
+                    }
+                }
+
+                var stockChart = Highcharts.stockChart('container', {
+                    title: {
+                        text: 'Price & Position',
+                    },
+                    time: {
+                        useUTC: false,
+                    },
+                    legend: {
+                        enabled: true,
+                    },
+                    tooltip: {
+                        shared: true,
+                    },
+                    chart: {
+                        animation: false,
+                    },
+                    rangeSelector: {
+                        buttons: [
+                            {
+                                type: 'day',
+                                count: 1,
+                                text: '1day',
+                                title: 'View 1 day',
+                                events: {
+                                    click: function () {
+                                        stockChart.update({
+                                            plotOptions: {
+                                                series: {
+                                                    dataGrouping: {
+                                                        enabled: false
+                                                    }
+                                                }
+                                            },
+                                        });
+                                    }
+                                },
+                            },{
+                                type: 'day',
+                                count: 2,
+                                text: '2day',
+                                title: 'View 2 day',
+                                events: {
+                                    click: function () {
+                                        stockChart.update({
+                                            plotOptions: {
+                                                series: {
+                                                    dataGrouping: {
+                                                        enabled: false
+                                                    }
+                                                }
+                                            },
+                                        });
+                                    }
+                                },
+                            },{
+                                type: 'day',
+                                count: 3,
+                                text: '3day',
+                                title: 'View 3 day',
+                                events: {
+                                    click: function () {
+                                        stockChart.update({
+                                            plotOptions: {
+                                                series: {
+                                                    dataGrouping: {
+                                                        enabled: false
+                                                    }
+                                                }
+                                            },
+                                        });
+                                    }
+                                },
+                            }, {
+                                type: 'week',
+                                count: 1,
+                                text: '1w',
+                                title: 'View 1 week',
+                                events: {
+                                    click: function () {
+                                        stockChart.update({
+                                            plotOptions: {
+                                                series: {
+                                                    dataGrouping: {
+                                                        enabled: false
+                                                    }
+                                                }
+                                            },
+                                        });
+                                    }
+                                },
+                            }, {
+                                type: 'month',
+                                count: 1,
+                                text: '1m',
+                                title: 'View 1 month',
+                                events: {
+                                    click: function () {
+                                        stockChart.update({
+                                            plotOptions: {
+                                                series: {
+                                                    dataGrouping: {
+                                                        enabled: false
+                                                    }
+                                                }
+                                            },
+                                        });
+                                    }
+                                },
+                            }, {
+                                type : 'all',
+                                count : 1,
+                                text : 'All',
+                                title: 'View All',
+                                events: {
+                                    click: function () {
+                                        stockChart.update({
+                                            plotOptions: {
+                                                series: {
+                                                    dataGrouping: {
+                                                        enabled: false
+                                                    }
+                                                }
+                                            },
+                                        });
+                                    }
+                                },
+                            }
+                        ],
+                        selected: 4,
+                    },
+                    plotOptions: {
+                        series: {
+                            dataGrouping: {
+                                enabled: false
+                            }
+                        }
+                    },
+                    yAxis: [
+                        {                            
+                            title: {
+                                text: '价格',
+                                style: {
+                                    color: Highcharts.getOptions().colors[1]
+                                }
+                            },
+                            labels: {
+                                style: {
+                                    color: Highcharts.getOptions().colors[1]
+                                }
+                            },
+                            opposite: false,
+                        },{
+                            title: {
+                                text: '仓位差',
+                                style: {
+                                    color: Highcharts.getOptions().colors[1]
+                                }
+                            },
+                            labels: {
+                                style: {
+                                    color: Highcharts.getOptions().colors[1]
+                                }
+                            },
+                            opposite: true,
+                            tickPositions: result.yMarks,
+                            gridLineWidth: 0,
+                        },{
+                            title: {
+                                text: '',
+                                style: {
+                                    color: Highcharts.getOptions().colors[1]
+                                }
+                            },
+                            labels: {
+                                enabled: false,
+                                style: {
+                                    color: Highcharts.getOptions().colors[1]
+                                }
+                            },
+                            opposite: false,
+                            gridLineWidth: 0,
+                        }
+                    ],        
+                    series: [{
+                        name: 'Prices',
+                        type: 'candlestick',
+                        yAxis: 0,
+                        data: result.prices,
+                        color: 'green',
+                        lineColor: 'green',
+                        upColor: 'red',
+                        upLineColor: 'red',
+                    },{
+                        name: 'Positions',
+                        type: 'spline',
+                        yAxis: 1,
+                        data: result.positions,
+                        color: Highcharts.getOptions().colors[0],
+                    },{
+                        name: 'Opens(U)',
+                        type: 'spline',
+                        yAxis: 2,
+                        data: result.opens,
+                        dashStyle: 'Dash',
+                        color: Highcharts.getOptions().colors[0],
+                    }]
+                });
+            }
+            chart();
+        </script>
+    </body>
+</html>
