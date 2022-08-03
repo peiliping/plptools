@@ -29,11 +29,11 @@
                 opensU : [],
                 events : [],
                 symbol : 'BTC',
-                symbolSuffix : 'USDT',
-                symbolParamKey : 'symbol',
+                symbolSuffix : 'USD',
+                symbolParamKey : 'pair',
                 beginning : parseInt(now / 3600000) * 3600000 - 86400000 * 9,
-                domain : 'https://fapi.binance.com',
-                pathPreffix : '/fapi',
+                domain : 'https://dapi.binance.com',
+                pathPreffix : '/dapi',
                 initPeriod : 1,
                 interval : '30m',
                 intervalTS : 1800000,
@@ -304,6 +304,10 @@
                 return result.symbolParamKey + '=' + result.symbol + result.symbolSuffix;
             }
 
+            function buildSymbolParamStr2(){
+                return 'symbol=' + result.symbol + result.symbolSuffix + '_PERP';
+            }
+
             function buildEndTime(st){
                 var endTime = st + 86400000 * 5;
                 endTime = (endTime > now ? now : endTime);
@@ -316,7 +320,7 @@
 
             function getKlines(startTime){
                 var endTime = buildEndTime(startTime);
-                var ps = buildSymbolParamStr() + '&interval=' + result.interval + '&limit=500&startTime=' + startTime + '&endTime=' + endTime + '&_ts=' + now;
+                var ps = buildSymbolParamStr2() + '&interval=' + result.interval + '&limit=500&startTime=' + startTime + '&endTime=' + endTime + '&_ts=' + now;
                 $.getJSON(result.domain + result.pathPreffix + '/v1/klines?' + ps, function (data) {
                     for (var i = 0; i < data.length; i++){
                         var lastTS = (result.prices.length == 0 ? 0 : result.prices[result.prices.length-1][0]);
@@ -336,7 +340,7 @@
             }
 
             function getFundingRates(){
-                $.getJSON(result.domain + result.pathPreffix + '/v1/fundingRate?' + buildSymbolParamStr() + '&limit=100&_ts=' + now, function (data) {
+                $.getJSON(result.domain + result.pathPreffix + '/v1/fundingRate?' + buildSymbolParamStr2() + '&limit=100&_ts=' + now, function (data) {
                     for (var i = 0; i < data.length; i++){                     
                         var ts = parseInt(data[i].fundingTime/1000)*1000;
                         var ratio = parseFloat(data[i].fundingRate);
@@ -385,12 +389,12 @@
             }
 
             function getLatestOpens(){
-                var ps = buildSymbolParamStr() + '&period=5m&limit=1&_ts=' + now;
+                var ps = buildSymbolParamStr() + '&period=5m&limit=1&contractType=PERPETUAL&_ts=' + now;
                 $.getJSON(result.domain + '/futures/data/openInterestHist?' + ps, function (data) {
                     for (var i = 0; i < data.length; i++){
                         if(data[i].sumOpenInterest > 0){
                             var ts = formatTs(data[i].timestamp);
-                            var item = [ts , parseInt(parseFloat(data[i].sumOpenInterestValue)/1000000)/100];
+                            var item = [ts , parseInt(parseFloat(data[i].sumOpenInterest)/10000)/100];
                             if(result.opensU[result.opensU.length-1][0] == ts){
                                 result.opensU[result.opensU.length-1] = item;
                             }else{
@@ -404,11 +408,11 @@
 
             function getOpens(startTime){
                 var endTime = buildEndTime(startTime);
-                var ps = buildSymbolParamStr() + '&period=' + result.interval + '&limit=500&starttime=' + startTime + '&endTime=' + endTime + '&_ts=' + now;
+                var ps = buildSymbolParamStr() + '&period=' + result.interval + '&limit=500&contractType=PERPETUAL&starttime=' + startTime + '&endTime=' + endTime + '&_ts=' + now;
                 $.getJSON(result.domain + '/futures/data/openInterestHist?' + ps, function (data) {
                     for (var i = 0; i < data.length; i++){
                         if(data[i].sumOpenInterest > 0){
-                            var item = [data[i].timestamp , parseInt(parseFloat(data[i].sumOpenInterestValue)/1000000)/100];
+                            var item = [data[i].timestamp , parseInt(parseFloat(data[i].sumOpenInterest)/10000)/100];
                             var lastTS = (result.opensU.length == 0 ? 0 : result.opensU[result.opensU.length-1][0]);
                             if(item[0] >= result.beginning && item[0] > lastTS){
                                 result.opensU.push(item);
