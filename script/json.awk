@@ -106,7 +106,7 @@ function loopPrint(result, ind, _type, _arridx){
       print ind"[";
       for(_arridx = 0; _arridx < length(result) - 1; _arridx++){
         if(typeof(result[_arridx]) == "array"){
-          loopPrint(result[x], ind"  ");
+          loopPrint(result[_arridx], ind"  ");
         }else{
           print ind, result[_arridx];
         }
