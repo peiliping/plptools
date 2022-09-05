@@ -87,7 +87,7 @@ function dp(result, key, _type){
     boolfc(result, key);
   }
 }
-function loopPrint(result, ind, _type, _arridx){
+function pjson(result, ind, _type, _arridx){
   if(typeof(result) == "array"){
     _type = result["_type_"];
     if(_type == "object"){
@@ -96,7 +96,7 @@ function loopPrint(result, ind, _type, _arridx){
         if(x == "_type_"){ continue; }
         if(typeof(result[x]) == "array"){
           print ind, x, ":";
-          loopPrint(result[x], ind"  ");
+          pjson(result[x], ind"  ");
         }else{
           print ind, x, ":", result[x];
         }
@@ -106,7 +106,7 @@ function loopPrint(result, ind, _type, _arridx){
       print ind"[";
       for(_arridx = 0; _arridx < length(result) - 1; _arridx++){
         if(typeof(result[_arridx]) == "array"){
-          loopPrint(result[_arridx], ind"  ");
+          pjson(result[_arridx], ind"  ");
         }else{
           print ind, result[_arridx];
         }
@@ -117,9 +117,7 @@ function loopPrint(result, ind, _type, _arridx){
     print ind, result;
   }
 }
-function pjson(result){
-  loopPrint(result["."], "");
-}
+
 BEGIN{tLen=0; str=""; idx=1; result["_type_"] = "object";}
 {
   str=$0; tLen = length(str); ss();
