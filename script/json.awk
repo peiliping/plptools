@@ -1,10 +1,18 @@
 function fatal(_sp){ print "index : ("idx") "_sp; exit 1; }
 function get(_np){ return substr(str, idx, _np); }
 function step(_np){ idx+=_np; }
-function check(_sp){ if(get(length(_sp)) == _sp){ step(length(_sp)); }else{ fatal("check failed "_np); }  }
-function skip(_sp, _greed){ if(get(length(_sp)) == _sp){ step(length(_sp)); if(_greed == "true"){ skip(_sp, _greed); } } }
+function skip(_sp, _greed){
+  if(get(length(_sp)) == _sp){ 
+    step(length(_sp)); 
+    if(_greed == "true"){ skip(_sp, _greed); }
+  } 
+}
 function skipSpace(){ skip(" ", "true" ); }
 function skipDot(){ skip(",", "false"); }
+function check(_sp){ 
+  if(get(length(_sp)) == _sp){ step(length(_sp)); return ; }
+  fatal("check failed "_np);  
+}
 function keyfc(_key, _i){
   for(_i = idx; ; _i++){ if(substr(str, _i, 1) == "\""){ break; } }
   _key = get(_i - idx); step(_i - idx + 1); return _key;
@@ -50,11 +58,9 @@ function jtype(_sp){
 function dispatch(result, _key, _type){
   _type = jtype(get(1));
   if(_type == "array"){
-    result[_key]["_type_"] = _type;
-    step(1); arrfc(result[_key]);
+    result[_key]["_type_"] = _type; step(1); arrfc(result[_key]);
   }else if(_type == "object"){
-    result[_key]["_type_"] = _type;
-    step(1); objfc(result[_key]);
+    result[_key]["_type_"] = _type; step(1); objfc(result[_key]);
   }else if(_type == "string"){
     step(1); strfc(result, _key);
   }else if(_type == "number"){
@@ -63,10 +69,9 @@ function dispatch(result, _key, _type){
     boolfc(result, _key);
   }
 }
-function pjson(result, _indent, _key, _type){
+function pjson(result, _indent, _key){
   if(typeof(result) != "array"){ print _indent, result; return ;}
-  _type = result["_type_"];
-  if(_type == "object"){
+  if(result["_type_"] == "object"){
     print _indent"{";
     for(_key in result){
       if(_key == "_type_"){ continue; }
@@ -77,7 +82,7 @@ function pjson(result, _indent, _key, _type){
       }
     }
     print _indent"}";
-  }else if(_type == "array"){ 
+  }else if(result["_type_"] == "array"){ 
     print _indent"[";
     for(_key = 0; _key < length(result) - 1; _key++){
       if(typeof(result[_key]) == "array"){
@@ -89,12 +94,10 @@ function pjson(result, _indent, _key, _type){
     print _indent"]";
   }
 }
-
-BEGIN{str=""; idx=1; result["_type_"] = "object";}
-{
-  str=$0; skipSpace();
+BEGIN{str = ""; idx = 1; result["_type_"] = "object";}
+{ 
+  str = $0; skipSpace();
   rootType = jtype(get(1)); if(rootType != "array" && rootType != "object"){ fatal("not json"); }
   dispatch(result, ".");
 }
-
 ## echo '{"a":123,"b":-0.4,"c":"ccd","d":true,"e":{"f":["abc","fff"]}}' | gawk -i json.awk 'END{pjson(result["."])}'
