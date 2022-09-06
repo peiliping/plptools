@@ -48,24 +48,24 @@ function objfc(result, _key){
   }
 }
 function jtype(_sp){
-  if(_sp == "["){return "array";}
-  if(_sp == "{"){return "object";}
   if(_sp == "\""){return "string";}
   if(_sp ~ /[0-9\-]/){return "number";}
   if(_sp == "t" || _sp == "f"){return "boolean";}
+  if(_sp == "["){return "array";}
+  if(_sp == "{"){return "object";}
   fatal("bad format");
 }
-function dispatch(result, _key, _type){
-  _type = jtype(get(1));
-  if(_type == "array"){
-    result[_key]["_type_"] = _type; step(1); arrfc(result[_key]);
-  }else if(_type == "object"){
-    result[_key]["_type_"] = _type; step(1); objfc(result[_key]);
-  }else if(_type == "string"){
+function dispatch(result, _key, _sp){
+  _sp = jtype(get(1));
+  if(_sp == "array"){
+    result[_key]["_type_"] = "array";  step(1); arrfc(result[_key]);
+  }else if(_sp == "object"){
+    result[_key]["_type_"] = "object"; step(1); objfc(result[_key]);
+  }else if(_sp == "string"){
     step(1); strfc(result, _key);
-  }else if(_type == "number"){
+  }else if(_sp == "number"){
     numfc(result, _key);
-  }else if(_type == "boolean"){
+  }else if(_sp == "boolean"){
     boolfc(result, _key);
   }
 }
