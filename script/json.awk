@@ -36,7 +36,8 @@ function arrfc(result, _key){
     skipSpace();
     if(get(1) == "]"){ step(1); skipSpace(); break; }
     if(get(1) == ","){ result[_key++] = ""; skipDot(); continue; }
-    dispatch(result, _key++); skipSpace(); skipDot();
+    dispatch(result, _key++); skipSpace();
+    if(get(1) != "]"){ check(","); }
   }
 }
 function objfc(result, _key){
@@ -44,7 +45,8 @@ function objfc(result, _key){
     skipSpace();
     if(get(1) == "}"){ step(1); skipSpace(); break; }
     check("\""); _key = keyfc(); skipSpace(); check(":"); skipSpace();
-    dispatch(result, _key); skipSpace(); skipDot();
+    dispatch(result, _key); skipSpace();
+    if(get(1) != "}"){ check(","); }
   }
 }
 function jtype(_sp){
