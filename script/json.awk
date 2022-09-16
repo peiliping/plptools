@@ -71,14 +71,14 @@ function dispatch(_json, _key, _sp){
     boolfc(_json, _key);
   }
 }
-function pjson(_json, _indent, _key){
+function printJson(_json, _indent, _key){
   if(typeof(_json) != "array"){ print _indent, _json; return ;}
   if(_json["_type_"] == "object"){
     print _indent"{";
     for(_key in _json){
       if(_key == "_type_"){ continue; }
       if(typeof(_json[_key]) == "array"){
-        print _indent, _key, ":"; pjson(_json[_key], _indent"  ");
+        print _indent, _key, ":"; printJson(_json[_key], _indent"  ");
       }else{
         print _indent, _key, ":", _json[_key];
       }
@@ -96,10 +96,9 @@ function pjson(_json, _indent, _key){
     print _indent"]";
   }
 }
-BEGIN{JSON_STRING = ""; IDX = 1; result["_type_"] = "object";}
-{ 
-  JSON_STRING = $0; skipSpace();
-  rootType = jtype(get(1)); if(rootType != "array" && rootType != "object"){ fatal("not json"); }
-  dispatch(result, "_root_");
-} 
-## echo '{"a":123,"b":-0.4,"c":"ccd","d":true,"e":{"f":["abc","fff"]}}' | gawk -i json.awk 'END{pjson(result["_root_"])}'
+function parserJson(_str, _json){
+ JSON_STRING = _str; IDX = 1; _json["_type_"] = "object"; skipSpace();
+ rootType = jtype(get(1)); if(rootType != "array" && rootType != "object"){ fatal("not json"); }
+ dispatch(_json, "_root_");
+}
+## echo '{"a":123,"b":-0.4,"c":"ccd","d":true,"e":{"f":["abc","fff"]}}' | gawk -i json.awk '{parserJson($0,json);printJson(json);}'
