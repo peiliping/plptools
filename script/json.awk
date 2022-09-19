@@ -88,7 +88,7 @@ function printJson(_json, _indent, _key){
     print _indent"[";
     for(_key = 0; _key < length(_json) - 1; _key++){
       if(typeof(_json[_key]) == "array"){
-        pjson(_json[_key], _indent"  ");
+        printJson(_json[_key], _indent"  ");
       }else{
         print _indent, _json[_key];
       }
