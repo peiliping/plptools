@@ -31,6 +31,7 @@
                 symbol : 'BTC',
                 symbolSuffix : 'USD',
                 symbolParamKey : 'pair',
+                contractSize : 100,
                 beginning : parseInt(now / 3600000) * 3600000 - 86400000 * 9,
                 domain : 'https://dapi.binance.com',
                 pathPreffix : '/dapi',
@@ -394,7 +395,7 @@
                     for (var i = 0; i < data.length; i++){
                         if(data[i].sumOpenInterest > 0){
                             var ts = formatTs(data[i].timestamp);
-                            var item = [ts , parseInt(parseFloat(data[i].sumOpenInterest)/10000)/100];
+                            var item = [ts , parseInt(parseFloat(data[i].sumOpenInterest * result.contractSize)/1000000)/100];
                             if(result.opensU[result.opensU.length-1][0] == ts){
                                 result.opensU[result.opensU.length-1] = item;
                             }else{
@@ -412,7 +413,7 @@
                 $.getJSON(result.domain + '/futures/data/openInterestHist?' + ps, function (data) {
                     for (var i = 0; i < data.length; i++){
                         if(data[i].sumOpenInterest > 0){
-                            var item = [data[i].timestamp , parseInt(parseFloat(data[i].sumOpenInterest)/10000)/100];
+                            var item = [data[i].timestamp , parseInt(parseFloat(data[i].sumOpenInterest * result.contractSize)/1000000)/100];
                             var lastTS = (result.opensU.length == 0 ? 0 : result.opensU[result.opensU.length-1][0]);
                             if(item[0] >= result.beginning && item[0] > lastTS){
                                 result.opensU.push(item);
@@ -449,6 +450,9 @@
             var t_symbol = getUrlParam('symbol');
             if(t_symbol != null && t_symbol != ''){
               result.symbol = t_symbol.toUpperCase();
+            }
+            if(result.symbol != "BTC"){
+                result.contractSize = 10;
             }
             var t_symbol_suffix = getUrlParam('symbolSuffix');
             if(t_symbol_suffix != null && t_symbol_suffix != ''){
