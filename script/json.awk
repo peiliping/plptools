@@ -60,9 +60,17 @@ function jtype(_sp){
 function dispatch(_json, _key, _sp){
   _sp = jtype(get(1));
   if(_sp == "array"){
-    _json[_key]["_type_"] = "array";  step(1); arrfc(_json[_key]);
+    if(_key == ""){
+      _json["_type_"] = "array";  step(1); arrfc(_json);
+    }else{
+      _json[_key]["_type_"] = "array";  step(1); arrfc(_json[_key]);
+    }
   }else if(_sp == "object"){
-    _json[_key]["_type_"] = "object"; step(1); objfc(_json[_key]);
+    if(_key == ""){
+      _json["_type_"] = "object"; step(1); objfc(_json);
+    }else{
+      _json[_key]["_type_"] = "object"; step(1); objfc(_json[_key]);
+    }
   }else if(_sp == "string"){
     step(1); strfc(_json, _key);
   }else if(_sp == "number"){
@@ -97,8 +105,8 @@ function printJson(_json, _indent, _key){
   }
 }
 function parserJson(_str, _json){
- JSON_STRING = _str; IDX = 1; _json["_type_"] = "object"; skipSpace();
+ JSON_STRING = _str; IDX = 1; skipSpace();
  rootType = jtype(get(1)); if(rootType != "array" && rootType != "object"){ fatal("not json"); }
- dispatch(_json, "_root_");
+ dispatch(_json);
 }
 ## echo '{"a":123,"b":-0.4,"c":"ccd","d":true,"e":{"f":["abc","fff"]}}' | gawk -i json.awk '{parserJson($0,json);printJson(json);}'
