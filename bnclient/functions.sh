@@ -1,5 +1,7 @@
 #!/bin/bash
 
+AwkLib="/root/awklib"
+
 ApiKey=""
 SecretKey=""
 

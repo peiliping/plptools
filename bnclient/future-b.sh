@@ -1,7 +1,6 @@
 #!/bin/bash
 
-source /root/binance/functions.sh
-AwkLib="/root/awklib"
+source ./functions.sh
 
 Host="https://dapi.binance.com"
 
