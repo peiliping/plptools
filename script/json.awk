@@ -30,6 +30,10 @@ function boolfc(_json, _key){
   if(get(5) == "false"){ _json[_key] = "false"; step(5); return; }
   fatal("not boolean");
 }
+function nullfc(_json, _key){
+  if(get(4) == "null" ){ _json[_key] = "null";  step(4); return; }
+  fatal("not null");
+}
 function arrfc(_json, _key){
   _key = 0;
   while(1 == 1){
@@ -53,6 +57,7 @@ function jtype(_sp){
   if(_sp == "\""){return "string";}
   if(_sp ~ /[0-9\-]/){return "number";}
   if(_sp == "t" || _sp == "f"){return "boolean";}
+  if(_sp == "n"){return "null";}
   if(_sp == "["){return "array";}
   if(_sp == "{"){return "object";}
   fatal("bad format");
@@ -77,6 +82,8 @@ function dispatch(_json, _key, _sp){
     numfc(_json, _key);
   }else if(_sp == "boolean"){
     boolfc(_json, _key);
+  }else if(_sp == "null"){
+    nullfc(_json, _key);
   }
 }
 function printJson(_json, _indent, _key){
