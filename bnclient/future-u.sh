@@ -16,6 +16,11 @@ getPositions(){
         print json["positions"][i]["symbol"],json["positions"][i]["positionSide"],json["positions"][i]["positionAmt"];
       }
     }
+    for(i=0; i<length(json["assets"])-1; i++){
+      if(json["assets"][i]["marginBalance"] + 1 > 1){
+        print json["assets"][i]["asset"],json["assets"][i]["marginBalance"];
+      }
+    }
   }'
 }
 
