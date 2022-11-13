@@ -51,6 +51,15 @@ getOrder(){
   echo $HttpResult | awk -i ${AwkLib}/json.awk '{parserJson($0, json);printJson(json);}'
 }
 
+getHistoryOrder(){
+  local path="/fapi/v1/allOrders"
+  local symbol=`echo $1 | tr a-z A-Z`
+  local params="symbol=${symbol}"
+  sendRequest "GET" $Host $path $params
+  [[ $? -gt  0 ]] && return 1
+  echo $HttpResult | awk -i ${AwkLib}/json.awk '{parserJson($0, json);printJson(json);}'
+}
+
 cancelOpenOrder(){
   local path="/fapi/v1/order"
   local symbol=`echo $1 | tr a-z A-Z`
@@ -93,9 +102,10 @@ if [ -z "$*" ];then
   echo "2. getOpenOrders"
   echo "3. getBookTicker {symbol}"
   echo "4. getOrder {symbol} {orderId or clientOrderId}"
-  echo "5. cancelOpenOrder {symbol} {orderId or clinetOrderId}"
-  echo "6. marketTrade {symbol} {buy or sell} {long or short} {quantity}"
-  echo "7. limitTrade  {symbol} {buy or sell} {long or short} {price} {quantity}"
+  echo "5. getHistoryOrder {symbol}"
+  echo "6. cancelOpenOrder {symbol} {orderId or clinetOrderId}"
+  echo "7. marketTrade {symbol} {buy or sell} {long or short} {quantity}"
+  echo "8. limitTrade  {symbol} {buy or sell} {long or short} {price} {quantity}"
   echo "============================================================"
 else
   echo $*
