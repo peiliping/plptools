@@ -1,9 +1,10 @@
 #!/bin/bash
 
 AwkLib="/root/awklib"
+jsonLib="${AwkLib}/json.awk"
+BasePath="/tmp/timer"
 
-barkId="xxxxxxxxxxxxxxxxxxx"
-logPath="/tmp/timer/BARK/bark.log-"`date "+%Y%m%d"`
+barkId="xxxxxxxxxxx"
 
 bark(){
   cont=$1
@@ -12,7 +13,7 @@ bark(){
 
 barkAndLog(){
   bark $1
-  echo `date "+%T"`"  "$1 >> $logPath
+  echo `date "+%T"`"  "$1 >> "${BasePath}/BARK/bark.log-"`date "+%Y%m%d"`
 }
 
 forData(){

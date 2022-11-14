@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source /root/timer/base.sh
+source ./base.sh
 
 data=(
 BTCUSDT 0.5 -0.5
@@ -12,14 +12,14 @@ symbol=$1
 up=$2
 down=$3
 
-rfile="/tmp/timer/AD/AD-UFOP-${symbol}"
+rfile="${BasePath}/AD/AD-UFOP-${symbol}"
 if [ ! -f "$rfile" ]; then
   echo `date +%s` > $rfile
 fi
 stime=`awk '{print $1}' $rfile`
 
 result=`curl -s "https://fapi.binance.com/futures/data/openInterestHist?symbol=${symbol}&period=15m&limit=100" |\
-  awk -i ${AwkLib}/json.awk '
+  awk -i ${jsonLib} '
   { parserJson($0,json);
     for(i=0;i<length(json)-1;i++){
       print json[i]["timestamp"]/1000,int(json[i]["sumOpenInterestValue"]/10000)/10000;

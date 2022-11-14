@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source /root/timer/base.sh
+source ./base.sh
 
 data=(
 ##BTCUSDT 4h 168
@@ -16,7 +16,7 @@ interval=$2
 count=$3
 
 mm=`curl -s "https://www.binance.com/api/v3/klines?symbol=${symbol}&interval=${interval}&limit=${count}" |\
-awk -i ${AwkLib}/json.awk -i ${AwkLib}/linear.awk -vct="${count}" '
+awk -i ${jsonLib} -i ${AwkLib}/linear.awk -vct="${count}" '
 {
   parserJson($0, json);
   for(i=0; i<ct; i++){source[i + 1] = (json[i][1] + json[i][2] + json[i][3] + json[i][4])/4;}
