@@ -17,6 +17,18 @@ getAssets(){
   }' | sort -k2nr
 }
 
+transfer(){
+  local path="/sapi/v1/asset/transfer"
+  local asset=`echo $1 | tr a-z A-Z`
+  local amount=$2
+  local fromType=$3
+  local toType=$4
+  local params="asset=${asset}&amount=${amount}&type=${fromType}_${toType}"
+  sendRequest "POST" $Host $path $params
+  [[ $? -gt  0 ]] && return 1
+  echo $HttpResult | awk -i ${AwkLib}/json.awk '{parserJson($0, json);printJson(json);}'
+}
+
 getOpenOrders(){
   local path="/api/v3/openOrders"
   sendRequest "GET" $Host $path
@@ -90,13 +102,14 @@ limitTrade(){
 if [ -z "$*" ];then
   echo "============================================================"
   echo "1. getAssets"
-  echo "2. getOpenOrders"
-  echo "3. getBookTicker {symbol}"
-  echo "4. getOrder {symbol} {orderId or clientOrderId}"
-  echo "5. getHistoryOrder {symbol}"
-  echo "6. cancelOpenOrder {symbol} {orderId or clinetOrderId}"
-  echo "7. marketTrade {symbol} {buy or sell} {quantity}"
-  echo "8. limitTrade  {symbol} {buy or sell} {price} {quantity}"
+  echo "2. transfer asset quantity fromType toType (type in MAIN,UMFUTURE,CMFUTURE)"
+  echo "3. getOpenOrders"
+  echo "4. getBookTicker {symbol}"
+  echo "5. getOrder {symbol} {orderId or clientOrderId}"
+  echo "6. getHistoryOrder {symbol}"
+  echo "7. cancelOpenOrder {symbol} {orderId or clinetOrderId}"
+  echo "8. marketTrade {symbol} {buy or sell} {quantity}"
+  echo "9. limitTrade  {symbol} {buy or sell} {price} {quantity}"
   echo "============================================================"
 else
   echo $*
