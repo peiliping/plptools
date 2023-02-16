@@ -34,3 +34,8 @@ do
   call $name
   sleep 1s
 done
+
+result=`awk '$5<0.1{c++;}END{if(c<=25){print c;}}' ${BasePath}/SCAN/ZZZZZLAST `
+if [ -n "$result" ] ;then
+  bark "WARNING.UF.SCAN.${result}"
+fi
