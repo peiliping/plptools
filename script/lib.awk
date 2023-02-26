@@ -10,20 +10,14 @@ function printX(o, _indent, _x){
   }
 }
 
-function clone(ma, mb, _key, _x){
+function clone(ma, mb, _x){
   for(_x in ma){
     if(typeof(ma[_x]) != "array"){
-      if(_key == ""){
-        mb[_x] = ma[_x];
-      }else{
-        mb[_key][_x] = ma[_x];
-      }
+      mb[_x] = ma[_x];
     }else{
-       if(_key == ""){
-         clone(ma[_x], mb, _x);
-       }else{
-         clone(ma[_x], mb[_key], _x);
-       }
+      mb[_x][__Y__] = 1;
+      clone(ma[_x], mb[_x]);
+      delete mb[_x][__Y__];
     }
   }
 }
