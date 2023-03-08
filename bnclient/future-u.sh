@@ -13,7 +13,8 @@ getPositions(){
     parserJson($0, json);
     for(i=0; i<length(json["positions"])-1; i++){
       if(json["positions"][i]["positionAmt"] + 0 != 0){
-        print json["positions"][i]["symbol"],json["positions"][i]["positionSide"],json["positions"][i]["positionAmt"];
+        print json["positions"][i]["symbol"],json["positions"][i]["positionSide"],json["positions"][i]["positionAmt"],json["positions"
+][i]["entryPrice"];
       }
     }
     for(i=0; i<length(json["assets"])-1; i++){
