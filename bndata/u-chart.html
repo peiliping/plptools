@@ -23,11 +23,13 @@
             var now = new Date().getTime();
             var result = {
                 prices : [],
+                pricesLNR : [],
                 volumes : [],
                 positions : [],
                 opensU : [],
+                opensULNR : [],
                 symbol : 'BTCUSDT',
-                startTime : parseInt(now / 3600000) * 3600000 - 86400000 * 8,
+                startTime : parseInt(now / 3600000) * 3600000 - 86400000 * 5,
                 endTime : now,
                 domain : 'https://fapi.binance.com',
                 pathPreffix : '/fapi',
