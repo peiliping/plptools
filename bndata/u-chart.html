@@ -20,6 +20,7 @@
     <body>
         <div id="container"></div>
         <script>
+            function getLast(ary){  return ary[ary.length-1];  }
             var now = new Date().getTime();
             var result = {
                 prices : [],
@@ -42,11 +43,6 @@
         </script>
         <script>
             function chart(){
-                var f = function(a, b){return a[0]-b[0];}
-                result.prices.sort(f);
-                result.volumes.sort(f);
-                result.positions.sort(f);
-                result.opensU.sort(f);
                 var pmax =  0.1 + result.positions.reduce((ac , cur) => {return ac > cur[1] ? ac : cur[1];});
                 var pmin = -0.1 + result.positions.reduce((ac , cur) => {if(ac == null){ac=1;} return ac < cur[1] ? ac : cur[1];});
                 for (var i = -100; i < 100; i+=5){
@@ -54,9 +50,7 @@
                         result.yMarks.push(i/100);
                     }
                 }
-                document.title = 
-                    result.positions[result.positions.length-1][1] + ' | ' + result.opensU[result.opensU.length-1][1];
-
+                document.title = getLast(result.positions)[1] + ' | ' + getLast(result.opensU)[1];
                 var stockChart = Highcharts.stockChart('container', {
                     title: {  text: 'Price & Position'  },
                     time: {  useUTC: false  },
@@ -203,7 +197,7 @@
                 var url = buildBaseURL(result.domain + '/futures/data/globalLongShortAccountRatio', 500, startTime, endTime);
                 $.getJSON(addParam(url, 'period', result.interval), function (data) {
                     for (var i = 0; i < data.length; i++){ 
-                        var lastTS = (result.positions.length == 0 ? 0 : result.positions[result.positions.length-1][0]);
+                        var lastTS = (result.positions.length == 0 ? 0 : getLast(result.positions)[0]);
                         if(data[i].timestamp >= result.startTime && data[i].timestamp > lastTS){
                             result.positions.push([data[i].timestamp , Math.floor((data[i].longAccount - data[i].shortAccount)*1000)/1000]);
                         }
@@ -221,7 +215,7 @@
                 $.getJSON(addParam(url, 'period', result.interval), function (data) {
                     for (var i = 0; i < data.length; i++){
                         if(data[i].sumOpenInterestValue == 0){continue;}
-                        var lastTS = (result.opensU.length == 0 ? 0 : result.opensU[result.opensU.length-1][0]);
+                        var lastTS = (result.opensU.length == 0 ? 0 : getLast(result.opensU)[0]);
                         if(data[i].timestamp >= result.startTime && data[i].timestamp > lastTS){
                             result.opensU.push([data[i].timestamp , parseInt(parseFloat(data[i].sumOpenInterestValue)/1000000)/100]);
                         }
@@ -238,7 +232,7 @@
                 var url = buildBaseURL(result.domain + result.pathPreffix + '/v1/klines', 500, startTime, endTime);
                 $.getJSON(addParam(url, 'interval', result.interval), function (data) {
                     for (var i = 0; i < data.length; i++){
-                        var lastTS = (result.prices.length == 0 ? 0 : result.prices[result.prices.length-1][0]);
+                        var lastTS = (result.prices.length == 0 ? 0 : getLast(result.prices)[0]);
                         if(data[i][0] >= result.startTime && data[i][0] > lastTS){
                             result.prices.push([data[i][0], parseFloat(data[i][1]), parseFloat(data[i][2]), parseFloat(data[i][3]), parseFloat(data[i][4])]);                
                             result.volumes.push([data[i][0], parseFloat(data[i][5])]);
