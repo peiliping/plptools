@@ -3,8 +3,9 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <script src="https://img.hcharts.cn/jquery/jquery-1.8.3.min.js"></script>
-        <script src="https://code.hcharts.cn/stock/10.3.2/highstock.js"></script>
+        <script src="../jslib/jquery-3.7.0.js"></script>
+        <script src="../jslib/highstock-10.3.3.js"></script>
+        <script src="../jslib/highcharts-more-10.3.3.js"></script>
         <script type="text/javascript" src="./klines.js"></script>
         <script type="text/javascript" src="./positions.js"></script>
         <script type="text/javascript" src="./opens.js"></script>
@@ -25,16 +26,47 @@
         <script>
             var result = {
                 prices : klines,
+                pricesLNR : [],
                 positions : positions,
                 opens : opens,
+                opensLNR : [],
+                linearNum : 168,
                 yMarks : [],
             };
-
+            function getLast(ary){  return ary[ary.length-1];  }
+            function linear(source, getValFunc){
+                var length = source.length;
+                var sumx = 0, sumy = 0, sumxx = 0, sumxy = 0, stdDevAcc = 0;
+                for (var i = 1; i <= length; i++){
+                    var y = getValFunc(source[i-1]);
+                    sumx += i;
+                    sumy += y;
+                    sumxx += (i * i);
+                    sumxy += (i * y);
+                }
+                var slope = (length * sumxy - sumx * sumy) / (length * sumxx - sumx * sumx);
+                var intercept = sumy / length - slope * sumx / length + slope;
+                for (var i = 1; i <= length; i++){
+                    var y = getValFunc(source[i-1]);
+                    stdDevAcc += ((i * slope + intercept - y) * (i * slope + intercept - y));
+                }
+                var stdDev = parseInt(Math.sqrt(stdDevAcc / (length - 1)) * 100)/100; 
+                var m = parseInt((length * slope + intercept) * 100)/100;
+                return [getLast(source)[0], m + 2 * stdDev, m - 2 * stdDev];
+            }
+            function calLinearLines(source, target, getValFunc){
+                for(var i = result.linearNum - 1; i < source.length; i++){
+                    target.push(linear(source.slice(i + 1 - result.linearNum, i + 1), getValFunc));
+                }
+            }
             function chart(){
                 var f = function(a, b){return a[0]-b[0];}
                 result.prices.sort(f);
                 result.positions.sort(f);
                 result.opens.sort(f);
+                calLinearLines(result.prices, result.pricesLNR, 
+                    function(item){ return (item[1] + item[2] + item[3] + item[4])/4;});
+                calLinearLines(result.opens, result.opensLNR, function(item){ return item[1];});
                 var pmax =  0.1 + result.positions.reduce((ac , cur) => {return ac > cur[1] ? ac : cur[1];});
                 var pmin = -0.1 + result.positions.reduce((ac , cur) => {if(ac == null){ac=1;} return ac < cur[1] ? ac : cur[1];});
                 for (var i = -100; i < 100; i+=5){
@@ -44,21 +76,11 @@
                 }
 
                 var stockChart = Highcharts.stockChart('container', {
-                    title: {
-                        text: 'Price & Position',
-                    },
-                    time: {
-                        useUTC: false,
-                    },
-                    legend: {
-                        enabled: true,
-                    },
-                    tooltip: {
-                        shared: true,
-                    },
-                    chart: {
-                        animation: false,
-                    },
+                    title: {  text: 'Price & Position'  },
+                    time: {  useUTC: false  },
+                    legend: {  enabled: true  },
+                    tooltip: {  shared: true  },
+                    chart: {  animation: false  },
                     rangeSelector: {
                         buttons: [
                             {
@@ -66,145 +88,57 @@
                                 count: 1,
                                 text: '1day',
                                 title: 'View 1 day',
-                                events: {
-                                    click: function () {
-                                        stockChart.update({
-                                            plotOptions: {
-                                                series: {
-                                                    dataGrouping: {
-                                                        enabled: false
-                                                    }
-                                                }
-                                            },
-                                        });
-                                    }
-                                },
+                                events: {  click: function (){  stockChart.update({});  }  },
                             },{
                                 type: 'day',
                                 count: 2,
                                 text: '2day',
                                 title: 'View 2 day',
-                                events: {
-                                    click: function () {
-                                        stockChart.update({
-                                            plotOptions: {
-                                                series: {
-                                                    dataGrouping: {
-                                                        enabled: false
-                                                    }
-                                                }
-                                            },
-                                        });
-                                    }
-                                },
+                                events: {  click: function (){  stockChart.update({});  }  },
                             },{
                                 type: 'day',
                                 count: 3,
                                 text: '3day',
                                 title: 'View 3 day',
-                                events: {
-                                    click: function () {
-                                        stockChart.update({
-                                            plotOptions: {
-                                                series: {
-                                                    dataGrouping: {
-                                                        enabled: false
-                                                    }
-                                                }
-                                            },
-                                        });
-                                    }
-                                },
+                                events: {  click: function (){  stockChart.update({});  }  },
                             }, {
                                 type: 'week',
                                 count: 1,
                                 text: '1w',
                                 title: 'View 1 week',
-                                events: {
-                                    click: function () {
-                                        stockChart.update({
-                                            plotOptions: {
-                                                series: {
-                                                    dataGrouping: {
-                                                        enabled: false
-                                                    }
-                                                }
-                                            },
-                                        });
-                                    }
-                                },
+                                events: {  click: function (){  stockChart.update({});  }  },
                             }, {
                                 type: 'month',
                                 count: 1,
                                 text: '1m',
                                 title: 'View 1 month',
-                                events: {
-                                    click: function () {
-                                        stockChart.update({
-                                            plotOptions: {
-                                                series: {
-                                                    dataGrouping: {
-                                                        enabled: false
-                                                    }
-                                                }
-                                            },
-                                        });
-                                    }
-                                },
-                            }, {
-                                type : 'all',
-                                count : 1,
-                                text : 'All',
-                                title: 'View All',
-                                events: {
-                                    click: function () {
-                                        stockChart.update({
-                                            plotOptions: {
-                                                series: {
-                                                    dataGrouping: {
-                                                        enabled: false
-                                                    }
-                                                }
-                                            },
-                                        });
-                                    }
-                                },
+                                events: {  click: function (){  stockChart.update({});  }  },
                             }
                         ],
                         selected: 4,
                     },
                     plotOptions: {
                         series: {
-                            dataGrouping: {
-                                enabled: false
-                            }
+                            dataGrouping: {  enabled: false  }
                         }
                     },
                     yAxis: [
                         {                            
                             title: {
                                 text: '价格',
-                                style: {
-                                    color: Highcharts.getOptions().colors[1]
-                                }
+                                style: {  color: Highcharts.getOptions().colors[1]  }
                             },
                             labels: {
-                                style: {
-                                    color: Highcharts.getOptions().colors[1]
-                                }
+                                style: {  color: Highcharts.getOptions().colors[1]  }
                             },
                             opposite: false,
                         },{
                             title: {
                                 text: '仓位差',
-                                style: {
-                                    color: Highcharts.getOptions().colors[1]
-                                }
+                                style: {  color: Highcharts.getOptions().colors[1]  }
                             },
                             labels: {
-                                style: {
-                                    color: Highcharts.getOptions().colors[1]
-                                }
+                                style: {  color: Highcharts.getOptions().colors[1]  }
                             },
                             opposite: true,
                             tickPositions: result.yMarks,
@@ -212,15 +146,11 @@
                         },{
                             title: {
                                 text: '',
-                                style: {
-                                    color: Highcharts.getOptions().colors[1]
-                                }
+                                style: {  color: Highcharts.getOptions().colors[1]  }
                             },
                             labels: {
                                 enabled: false,
-                                style: {
-                                    color: Highcharts.getOptions().colors[1]
-                                }
+                                style: {  color: Highcharts.getOptions().colors[1]  }
                             },
                             opposite: false,
                             gridLineWidth: 0,
@@ -236,6 +166,14 @@
                         upColor: 'red',
                         upLineColor: 'red',
                     },{
+                        name: 'PricesLNR',
+                        type: 'areasplinerange',
+                        yAxis: 0,
+                        data: result.pricesLNR,
+                        color: Highcharts.getOptions().colors[0],
+                        lineWidth: 0,
+                        visible: false
+                    },{
                         name: 'Positions',
                         type: 'spline',
                         yAxis: 1,
@@ -248,6 +186,14 @@
                         data: result.opens,
                         dashStyle: 'Dash',
                         color: Highcharts.getOptions().colors[0],
+                    },{
+                        name: 'Opens(U)LNR',
+                        type: 'areasplinerange',
+                        yAxis: 2,
+                        data: result.opensLNR,
+                        color: Highcharts.getOptions().colors[0],
+                        lineWidth: 0,
+                        visible: false
                     }]
                 });
             }

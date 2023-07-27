@@ -72,7 +72,6 @@
                 calLinearLines(result.prices, result.pricesLNR, 
                     function(item){ return (item[1] + item[2] + item[3] + item[4])/4;});
                 calLinearLines(result.opensU, result.opensULNR, function(item){ return item[1];});
-
                 var pmax =  0.1 + result.positions.reduce((ac , cur) => {return ac > cur[1] ? ac : cur[1];});
                 var pmin = -0.1 + result.positions.reduce((ac , cur) => {if(ac == null){ac=1;} return ac < cur[1] ? ac : cur[1];});
                 for (var i = -100; i < 100; i+=5){
@@ -184,7 +183,7 @@
                         upColor: 'red',
                         upLineColor: 'red',
                     },{
-                        name: 'PriceLNR',
+                        name: 'PricesLNR',
                         type: 'areasplinerange',
                         yAxis: 0,
                         data: result.pricesLNR,
