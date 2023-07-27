@@ -26,22 +26,17 @@
                 volumes : [],
                 positions : [],
                 opensU : [],
-                symbolBase : 'BTC',
-                symbolQuote : 'USDT',
-                symbolParamKey : 'symbol',
-                startTime : parseInt(now / 3600000) * 3600000 - 86400000 * 9,
+                symbol : 'BTCUSDT',
+                startTime : parseInt(now / 3600000) * 3600000 - 86400000 * 8,
                 endTime : now,
                 domain : 'https://fapi.binance.com',
                 pathPreffix : '/fapi',
                 initPeriod : 1,
                 interval : '30m',
                 intervalTS : 1800000,
+                linearNum : 144,
                 yMarks : [],
             };
-            function buildEndTime(st){
-                var endTime = st + result.intervalTS * 500;
-                return (endTime > result.endTime ? result.endTime : endTime);
-            }
         </script>
         <script>
             function chart(){
@@ -184,13 +179,17 @@
                     }]
                 });
             }
+            function buildEndTime(st){
+                var endTime = st + result.intervalTS * 500;
+                return (endTime > result.endTime ? result.endTime : endTime);
+            }
             function addParam(url, key, value){
                 if(value == null){return url;}
                 return url + '&' + key + '=' + value;
             }
             function buildBaseURL(page, limitN, startTime, endTime){
                 var tr = page + '?_ts=' + result.endTime;
-                tr = addParam(tr, result.symbolParamKey, result.symbolBase + result.symbolQuote);
+                tr = addParam(tr, "symbol", result.symbol);
                 tr = addParam(tr, 'limit', limitN);
                 tr = addParam(tr, 'startTime', startTime);
                 tr = addParam(tr, 'starttime', startTime);
@@ -256,13 +255,9 @@
                 var r = window.location.search.substr(1).match(reg);
                 if (r != null) return unescape(r[2]); return null;
             }
-            var t_symbol_base = getUrlParam('symbolBase');
-            if(t_symbol_base != null && t_symbol_base != ''){
-              result.symbolBase = t_symbol_base.toUpperCase();
-            }
-            var t_symbol_quote = getUrlParam('symbolQuote');
-            if(t_symbol_quote != null && t_symbol_quote != ''){
-                result.symbolQuote = t_symbol_quote.toUpperCase();
+            var t_symbol = getUrlParam('symbol');
+            if(t_symbol != null && t_symbol != ''){
+              result.symbol = t_symbol.toUpperCase();
             }
             var t_range = getUrlParam('range');
             if(t_range !=null && t_range != ''){
@@ -274,18 +269,23 @@
               if('5m' == result.interval){
                 result.intervalTS = 300000;
                 result.initPeriod = 0;
+                result.linearNum = 288;
               }else if('15m' == result.interval){
                 result.intervalTS = 900000;
                 result.initPeriod = 1;
+                result.linearNum = 192;
               }else if('30m' == result.interval){
                 result.intervalTS = 1800000;
                 result.initPeriod = 2;
+                result.linearNum = 144;
               }else if('1h' == result.interval){
                 result.intervalTS = 3600000;
                 result.initPeriod = 3;
+                result.linearNum = 168;
               }else if('4h' == result.interval){
                 result.intervalTS = 14400000;
                 result.initPeriod = 4;
+                result.linearNum = 168;
               }
             }
             getKlines(result.startTime);
