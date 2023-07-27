@@ -5,6 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
         <script src="https://code.highcharts.com/stock/10.3.3/highstock.js"></script>
+        <script src="https://code.highcharts.com/10.3.3/highcharts-more.js"></script>
         <style>
             *{
                 margin: 0;
@@ -21,6 +22,26 @@
         <div id="container"></div>
         <script>
             function getLast(ary){  return ary[ary.length-1];  }
+            function linear(source, getValFunc){
+                var length = source.length;
+                var sumx = 0, sumy = 0, sumxx = 0, sumxy = 0, stdDevAcc = 0;
+                for (var i = 1; i <= length; i++){
+                    var y = getValFunc(source[i-1]);
+                    sumx += i;
+                    sumy += y;
+                    sumxx += (i * i);
+                    sumxy += (i * y);
+                }
+                var slope = (length * sumxy - sumx * sumy) / (length * sumxx - sumx * sumx);
+                var intercept = sumy / length - slope * sumx / length + slope;
+                for (var i = 1; i <= length; i++){
+                    var y = getValFunc(source[i-1]);
+                    stdDevAcc += ((i * slope + intercept - y) * (i * slope + intercept - y));
+                }
+                var stdDev = parseInt(Math.sqrt(stdDevAcc / (length - 1)) * 100)/100; 
+                var m = parseInt((length * slope + intercept) * 100)/100;
+                return [getLast(source)[0], m + 2 * stdDev, m - 2 * stdDev];
+            }
             var now = new Date().getTime();
             var result = {
                 prices : [],
@@ -42,7 +63,16 @@
             };
         </script>
         <script>
+            function calLinearLines(source, target, getValFunc){
+                for(var i = result.linearNum - 1; i < source.length; i++){
+                    target.push(linear(source.slice(i + 1 - result.linearNum, i + 1), getValFunc));
+                }
+            }
             function chart(){
+                calLinearLines(result.prices, result.pricesLNR, 
+                    function(item){ return (item[1] + item[2] + item[3] + item[4])/4;});
+                calLinearLines(result.opensU, result.opensULNR, function(item){ return item[1];});
+
                 var pmax =  0.1 + result.positions.reduce((ac , cur) => {return ac > cur[1] ? ac : cur[1];});
                 var pmin = -0.1 + result.positions.reduce((ac , cur) => {if(ac == null){ac=1;} return ac < cur[1] ? ac : cur[1];});
                 for (var i = -100; i < 100; i+=5){
@@ -154,11 +184,19 @@
                         upColor: 'red',
                         upLineColor: 'red',
                     },{
+                        name: 'PriceLNR',
+                        type: 'areasplinerange',
+                        yAxis: 0,
+                        data: result.pricesLNR,
+                        color: Highcharts.getOptions().colors[0],
+                        lineWidth: 0,
+                        visible: false
+                    },{
                         name: 'Positions',
                         type: 'spline',
                         yAxis: 1,
                         data: result.positions,
-                        color: Highcharts.getOptions().colors[0],
+                        color: Highcharts.getOptions().colors[2],
                     },{
                         name: 'Opens(U)',
                         type: 'spline',
@@ -166,6 +204,14 @@
                         data: result.opensU,
                         dashStyle: 'Dash',
                         color: Highcharts.getOptions().colors[0],
+                    },{
+                        name: 'Opens(U)LNR',
+                        type: 'areasplinerange',
+                        yAxis: 2,
+                        data: result.opensULNR,
+                        color: Highcharts.getOptions().colors[0],
+                        lineWidth: 0,
+                        visible: false
                     },{
                         name: 'Volumes',
                         type: 'column',
