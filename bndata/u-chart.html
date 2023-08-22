@@ -43,6 +43,7 @@
                 return [getLast(source)[0], m + 2 * stdDev, m - 2 * stdDev];
             }
             var now = new Date().getTime();
+            now = (parseInt(now / 3600000) + 1) * 3600000;
             var result = {
                 prices : [],
                 pricesLNR : [],
