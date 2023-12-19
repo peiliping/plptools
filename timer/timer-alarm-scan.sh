@@ -5,7 +5,7 @@ source ./base.sh
 list=`curl -s "https://fapi.binance.com/fapi/v1/exchangeInfo" | awk -i ${jsonLib} '
   { parserJson($0,json);
     for(i=0;i<length(json["symbols"])-1;i++){
-      if(json["symbols"][i]["status"] == "TRADING" && json["symbols"][i]["contractType"] == "PERPETUAL"){
+      if(json["symbols"][i]["status"] == "TRADING" && json["symbols"][i]["contractType"] == "PERPETUAL" && json["symbols"][i]["symbol"] ~ "USDT"){
         print json["symbols"][i]["symbol"];
       }
     }
@@ -35,7 +35,7 @@ do
   sleep 1s
 done
 
-result=`awk '$5<0.1{c++;}END{if(c<=25){print c;}}' ${BasePath}/SCAN/ZZZZZLAST `
+result=`awk '$5!=""&&$5<0.1{c++;}END{print c;}' ${BasePath}/SCAN/ZZZZZLAST`
 if [ -n "$result" ] ;then
   bark "WARNING.UF.SCAN.${result}"
 fi
