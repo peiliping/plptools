@@ -65,19 +65,16 @@
                 result.prices.sort(f);
                 result.positions.sort(f);
                 result.opens.sort(f);
-                for (var i = 0; i < result.prices.length; i++){
-                    var prs = (result.prices[i][1] + result.prices[i][2] + 
-                        result.prices[i][3] + result.prices[i][4])/4;
-                    for(var k = 0; k < result.opens.length; k++){
-                        if(result.prices[i][0] == result.opens[k][0]){
-                            var m = (result.opens[k][1] * 1000) / prs;
-                            result.ratios.push([result.prices[i][0], parseInt(m * 1000)/1000]);
-                        }
-                        if(result.prices[i][0] <= result.opens[k][0]){
-                            break;
-                        }
+                
+                const prsmap = new Map();
+                result.prices.forEach(item => {prsmap.set(item[0],(item[1]+item[2]+item[3]+item[4])/4);});
+                result.opens.forEach(item => {
+                    if(prsmap.has(item[0])){
+                        var m = item[1] * 1000 / prsmap.get(item[0]);
+                        result.ratios.push([item[0],parseInt(m * 1000)/1000]);
                     }
-                }
+                  }
+                );
                 calLinearLines(result.prices, result.pricesLNR, 
                     function(item){ return (item[1] + item[2] + item[3] + item[4])/4;});
                 calLinearLines(result.opens, result.opensLNR, function(item){ return item[1];});
