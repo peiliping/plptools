@@ -30,6 +30,7 @@
                 positions : positions,
                 opens : opens,
                 opensLNR : [],
+                ratios :[],
                 linearNum : 168,
                 yMarks : [],
             };
@@ -64,6 +65,19 @@
                 result.prices.sort(f);
                 result.positions.sort(f);
                 result.opens.sort(f);
+                for (var i = 0; i < result.prices.length; i++){
+                    var prs = (result.prices[i][1] + result.prices[i][2] + 
+                        result.prices[i][3] + result.prices[i][4])/4;
+                    for(var k = 0; k < result.opens.length; k++){
+                        if(result.prices[i][0] == result.opens[k][0]){
+                            var m = (result.opens[k][1] * 1000) / prs;
+                            result.ratios.push([result.prices[i][0], parseInt(m * 1000)/1000]);
+                        }
+                        if(result.prices[i][0] <= result.opens[k][0]){
+                            break;
+                        }
+                    }
+                }
                 calLinearLines(result.prices, result.pricesLNR, 
                     function(item){ return (item[1] + item[2] + item[3] + item[4])/4;});
                 calLinearLines(result.opens, result.opensLNR, function(item){ return item[1];});
@@ -154,6 +168,17 @@
                             },
                             opposite: false,
                             gridLineWidth: 0,
+                        },{
+                            title: {
+                                text: '',
+                                style: {  color: Highcharts.getOptions().colors[1]  }
+                            },
+                            labels: {
+                                enabled: false,
+                                style: {  color: Highcharts.getOptions().colors[1]  }
+                            },
+                            opposite: false,
+                            gridLineWidth: 0,
                         }
                     ],        
                     series: [{
@@ -194,6 +219,13 @@
                         color: Highcharts.getOptions().colors[0],
                         lineWidth: 0,
                         visible: false
+                    },{
+                        name: 'Ratios',
+                        type: 'spline',
+                        yAxis: 3,
+                        data: result.ratios,
+                        dashStyle: 'Dash',
+                        color: Highcharts.getOptions().colors[2],
                     }]
                 });
             }
