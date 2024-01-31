@@ -90,7 +90,8 @@
                     }
                   }
                 );
-                document.title = getLast(result.positions)[1] + ' | ' + getLast(result.opensU)[1];
+                document.title = getLast(result.positions)[1] 
+                                + ' | ' + getLast(result.opensU)[1] + ' | ' + getLast(result.ratios)[1];
                 var stockChart = Highcharts.stockChart('container', {
                     title: {  text: 'Price & Position'  },
                     time: {  useUTC: false  },
@@ -225,7 +226,7 @@
                         yAxis: 2,
                         data: result.opensU,
                         dashStyle: 'Dash',
-                        color: Highcharts.getOptions().colors[0],
+                        color: Highcharts.getOptions().colors[8],
                     },{
                         name: 'Opens(U)LNR',
                         type: 'areasplinerange',
@@ -239,7 +240,7 @@
                         type: 'spline',
                         yAxis: 3,
                         data: result.ratios,
-                        color: Highcharts.getOptions().colors[5],
+                        color: Highcharts.getOptions().colors[4],
                         visible: false
                     },{
                         name: 'Volumes',
