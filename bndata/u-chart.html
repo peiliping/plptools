@@ -51,6 +51,7 @@
                 positions : [],
                 opensU : [],
                 opensULNR : [],
+                ratios : [],
                 symbol : 'BTCUSDT',
                 startTime : parseInt(now / 3600000) * 3600000 - 86400000 * 5,
                 endTime : now,
@@ -80,6 +81,15 @@
                         result.yMarks.push(i/100);
                     }
                 }
+                const prsmap = new Map();
+                result.prices.forEach(item => {prsmap.set(item[0],(item[1]+item[2]+item[3]+item[4])/4);});
+                result.opensU.forEach(item => {
+                    if(prsmap.has(item[0])){
+                        var m = item[1] * 1000 / prsmap.get(item[0]);
+                        result.ratios.push([item[0],parseInt(m * 1000)/1000]);
+                    }
+                  }
+                );
                 document.title = getLast(result.positions)[1] + ' | ' + getLast(result.opensU)[1];
                 var stockChart = Highcharts.stockChart('container', {
                     title: {  text: 'Price & Position'  },
@@ -165,6 +175,18 @@
                             gridLineWidth: 0,
                         },{
                             title: {
+                                text: '',
+                                style: {  color: Highcharts.getOptions().colors[1]  }
+                            },
+                            labels: {
+                                enabled: false,
+                                style: {  color: Highcharts.getOptions().colors[1]  }
+                            },
+                            opposite: false,
+                            height: '85%',
+                            gridLineWidth: 0,
+                        },{
+                            title: {
                                 text: '成交量',
                                 style: {  color: Highcharts.getOptions().colors[1]  }
                             },
@@ -213,9 +235,16 @@
                         lineWidth: 0,
                         visible: false
                     },{
+                        name: 'Ratios',
+                        type: 'spline',
+                        yAxis: 3,
+                        data: result.ratios,
+                        color: Highcharts.getOptions().colors[5],
+                        visible: false
+                    },{
                         name: 'Volumes',
                         type: 'column',
-                        yAxis: 3,
+                        yAxis: 4,
                         data: result.volumes,
                         color: Highcharts.getOptions().colors[0],
                     }]
