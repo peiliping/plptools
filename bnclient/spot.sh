@@ -8,12 +8,21 @@ getAssets(){
   local path="/sapi/v3/asset/getUserAsset"
   sendRequest "POST" $Host $path
   [[ $? -gt  0 ]] && return 1
-  echo $HttpResult | awk -i ${AwkLib}/json.awk '
+  prices=$(curl -s "https://fapi.binance.com/fapi/v2/ticker/price")
+  echo $HttpResult | awk -i ${AwkLib}/json.awk -vpricesstr=$prices '
   {
     parserJson($0, json);
-    for(i=0; i<length(json)-1; i++){
-      print json[i]["asset"]"\t"json[i]["free"]"\t"json[i]["locked"];
+    parserJson(pricesstr, pss);
+    for(i=0;i<length(pss)-1;i++){
+      psmap[pss[i]["symbol"]]=pss[i]["price"];
     }
+    for(i=0; i<length(json)-1; i++){
+      dp=psmap[json[i]["asset"]"USDT"];if(dp==""){dp=1;}
+      dtotal=json[i]["free"]+json[i]["locked"];
+      print json[i]["asset"]"\t"dtotal"\t"json[i]["free"]"\t"json[i]["locked"]"\t"dp*dtotal;
+      total+=dp*dtotal;
+    }
+    print "Total\t 0\t 0\t 0\t"total;
   }' | sort -k2nr
 }
 
