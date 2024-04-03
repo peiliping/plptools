@@ -68,7 +68,7 @@ getOrder(){
 getHistoryOrder(){
   local path="/api/v3/allOrders"
   local symbol=`echo $1 | tr a-z A-Z`
-  local params="symbol=${symbol}"
+  local params="symbol=${symbol}&limit=5"
   sendRequest "GET" $Host $path $params
   [[ $? -gt  0 ]] && return 1
   echo $HttpResult | awk -i ${AwkLib}/json.awk '{parserJson($0, json);printJson(json);}'
