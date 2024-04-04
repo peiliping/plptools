@@ -40,13 +40,6 @@ transfer(){
   echo $HttpResult | awk -i ${AwkLib}/json.awk '{parserJson($0, json);printJson(json);}'
 }
 
-getOpenOrders(){
-  local path="/api/v3/openOrders"
-  sendRequest "GET" $Host $path
-  [[ $? -gt  0 ]] && return 1
-  echo $HttpResult | awk -i ${AwkLib}/json.awk '{parserJson($0, json);printJson(json);}'
-}
-
 getBookTicker(){
   local path="/api/v3/ticker/bookTicker"
   local symbol=`echo $1 | tr a-z A-Z`
@@ -64,7 +57,7 @@ getOrder(){
   local params="symbol=${symbol}&${key}=${value}"
   sendRequest "GET" $Host $path $params
   [[ $? -gt  0 ]] && return 1
-  echo $HttpResult | awk -i ${AwkLib}/json.awk '{parserJson($0, json);printJson(json);}'
+  echo $HttpResult | awk -i ${AwkLib}/json.awk '{parserJson($0, json);printJson(json);}' | formatOrderTime
 }
 
 getHistoryOrder(){
@@ -73,7 +66,14 @@ getHistoryOrder(){
   local params="symbol=${symbol}&limit=5"
   sendRequest "GET" $Host $path $params
   [[ $? -gt  0 ]] && return 1
-  echo $HttpResult | awk -i ${AwkLib}/json.awk '{parserJson($0, json);printJson(json);}'
+  echo $HttpResult | awk -i ${AwkLib}/json.awk '{parserJson($0, json);printJson(json);}' | formatOrderTime
+}
+
+getOpenOrders(){
+  local path="/api/v3/openOrders"
+  sendRequest "GET" $Host $path
+  [[ $? -gt  0 ]] && return 1
+  echo $HttpResult | awk -i ${AwkLib}/json.awk '{parserJson($0, json);printJson(json);}' | formatOrderTime
 }
 
 cancelOpenOrder(){
@@ -114,10 +114,10 @@ if [ -z "$*" ];then
   echo "============================================================"
   echo "1. getAssets"
   echo "2. transfer asset quantity fromType toType (type in MAIN,UMFUTURE,CMFUTURE)"
-  echo "3. getOpenOrders"
-  echo "4. getBookTicker {symbol}"
-  echo "5. getOrder {symbol} {orderId or clientOrderId}"
-  echo "6. getHistoryOrder {symbol}"
+  echo "3. getBookTicker {symbol}"
+  echo "4. getOrder {symbol} {orderId or clientOrderId}"
+  echo "5. getHistoryOrder {symbol}"
+  echo "6. getOpenOrders"
   echo "7. cancelOpenOrder {symbol} {orderId or clinetOrderId}"
   echo "8. marketTrade {symbol} {buy or sell} {quantity}"
   echo "9. limitTrade  {symbol} {buy or sell} {price} {quantity}"

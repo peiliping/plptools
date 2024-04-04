@@ -72,3 +72,8 @@ getOrderIdType(){
     echo "origClientOrderId"
   fi
 }
+
+## 转换订单里的时间戳为日期格式
+formatOrderTime(){
+  awk '$0 ~ "workingTime"{$0=$0" "strftime("%Y-%m-%d %H:%M:%S", $3/1000);} {print $0}'
+}
