@@ -8,8 +8,10 @@ getAssets(){
   local path="/sapi/v3/asset/getUserAsset"
   sendRequest "POST" $Host $path
   [[ $? -gt  0 ]] && return 1
+  fmtStr='%-15s\t%-15s\t%-15s\t%-15s\t%-15s\t%-15s\n'
+  echo "" | awk -vfmt=${fmtStr} '{printf(fmt,"Name","Amount","Free","Lock","Price","Total")}';
   prices=$(curl -s "https://fapi.binance.com/fapi/v2/ticker/price")
-  echo $HttpResult | awk -i ${AwkLib}/json.awk -vpricesstr=$prices '
+  echo $HttpResult | awk -i ${AwkLib}/json.awk -vfmt=${fmtStr} -vpricesstr=${prices} '
   {
     parserJson($0, json);
     parserJson(pricesstr, pss);
@@ -19,11 +21,11 @@ getAssets(){
     for(i=0; i<length(json)-1; i++){
       dp=psmap[json[i]["asset"]"USDT"];if(dp==""){dp=1;}
       dtotal=json[i]["free"]+json[i]["locked"];
-      print json[i]["asset"]"\t"dtotal"\t"json[i]["free"]"\t"json[i]["locked"]"\t"dp*dtotal;
+      printf(fmt,json[i]["asset"],dtotal,json[i]["free"],json[i]["locked"],dp,dp*dtotal);
       total+=dp*dtotal;
     }
-    print "Total\t 0\t 0\t 0\t"total;
-  }' | sort -k2nr
+    printf(fmt,"Total","-","-","-","-",total);
+  }' | sort -k6nr
 }
 
 transfer(){
